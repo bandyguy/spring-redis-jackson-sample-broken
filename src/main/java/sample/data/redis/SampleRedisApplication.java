@@ -16,6 +16,9 @@
 
 package sample.data.redis;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -29,12 +32,18 @@ import java.util.Date;
 @SpringBootApplication
 public class SampleRedisApplication {
 
+	private static final Logger logger = LoggerFactory.getLogger(SampleRedisApplication.class);
+
 	public static void main(String[] args) throws Exception {
 		// Close the context so it doesn't stay awake listening for redis
 		ConfigurableApplicationContext context = SpringApplication.run(SampleRedisApplication.class, args);
 
+		SampleBean helloSampleBean = new SampleBean("hello", new Date());
+		ObjectMapper objectMapper = context.getBean(ObjectMapper.class);
+		logger.info("Expecting date to be written as: " + objectMapper.writeValueAsString(helloSampleBean.date));
+
 		SampleBeanRepository repository = context.getBean(SampleBeanRepository.class);
-		repository.save(new SampleBean("hello", new Date()));
+		repository.save(helloSampleBean);
 
 
 		context.close();
